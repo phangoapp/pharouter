@@ -1,0 +1,22 @@
+{
+    "name": "phangoapp/pharouter",
+    "description": "A simple modular router for use on your php files",
+    "require-dev": {
+        "phpunit/phpunit": "~4.8@dev",
+	"phautils/utils": "dev-master"
+    },
+    "license": "GPL",
+    "authors": [
+        {
+            "name": "Antonio de la Rosa",
+            "email": "webmaster@web-t-sys.com"
+        }
+    ],
+    "minimum-stability": "dev-master",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "PhaRouter\\": "src"
+        }
+    }
+}
