@@ -70,7 +70,7 @@ class Routes
 		$this->folder_base=$folder_base;
 		$this->default_home=array('controller' => 'index', 'method' => 'index', 'values' => array());
 		$this->default_404=array('controller' => '404', 'method' => 'index', 'values' => array());
-		
+		$this->root_path=getcwd();
 		//Prepare values how ip, etc...
 		
 		
@@ -157,7 +157,7 @@ class Routes
 		}
 		
 		$path_controller=$this->root_path.'/'.$this->folder_base.'/'.$this->folder_controllers.'/controller_'.$controller.'.php';
-		
+// 		
 		if(is_file($path_controller))
 		{
 			
@@ -185,7 +185,7 @@ class Routes
 				settype($this->arr_routes[$controller][$method], 'array');
 			
 				//Make a foreach for check parameters passed to the method
-			
+				
 				foreach($p->getParameters() as $parameter)
 				{
 					settype($arr_url[$c], 'string');
