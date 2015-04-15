@@ -181,50 +181,64 @@ class Routes
 			
 				$c=2;
 				$x=0;
-			
+				
+				$arr_values=array_slice($arr_url, $c);
+				
 				settype($this->arr_routes[$controller][$method], 'array');
-			
-				//Make a foreach for check parameters passed to the method
 				
-				foreach($p->getParameters() as $parameter)
+				if($num_parameters==count($arr_values))
 				{
-					settype($arr_url[$c], 'string');
-					settype($this->arr_routes[$controller][$method][$x], 'string');
+			
+					//Make a foreach for check parameters passed to the method
 					
-					if($this->arr_routes[$controller][$method][$x]=='')
+					foreach($p->getParameters() as $parameter)
 					{
-					
-						$this->arr_routes[$controller][$method][$x]='checkString';
+						settype($arr_url[$c], 'string');
+						settype($this->arr_routes[$controller][$method][$x], 'string');
 						
+						if($this->arr_routes[$controller][$method][$x]=='')
+						{
+						
+							$this->arr_routes[$controller][$method][$x]='checkString';
+							
+						
+						}
+						
+						$format_func=$this->arr_routes[$controller][$method][$x];
+						
+						$params[]=$this->$format_func($arr_url[$c]);
+				
+						$c++;
+						$x++;
 					
 					}
 					
-					$format_func=$this->arr_routes[$controller][$method][$x];
+					//Call to the method of the controller
 					
-					$params[]=$this->$format_func($arr_url[$c]);
-			
-					$c++;
-					$x++;
-				
+					if(!call_user_func_array(array($controller_class, $method), $params)===false)
+					{
+					
+						if($return_404==1)
+						{
+					
+							$this->response404();
+							
+						}
+						else
+						{
+						
+							return false;
+						
+						}
+					
+					}
+					
 				}
-				
-				//Call to the method of the controller
-				
-				if(!call_user_func_array(array($controller_class, $method), $params)===false)
+				else
 				{
 				
-					if($return_404==1)
-					{
-				
-						$this->response404();
-						
-					}
-					else
-					{
-					
-						return false;
-					
-					}
+					$this->response404();
+					die;
 				
 				}
 				
