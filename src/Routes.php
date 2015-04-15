@@ -132,6 +132,14 @@ class Routes
 		
 		}
 		
+		//Delete $_GET elements.
+	
+		$url=preg_replace('/\/\?.*$/', '', $url);
+		
+		//Delete get elements.
+		
+		$url=preg_replace('/\/get\/.*$/', '', $url);
+		
 		$arr_url=explode('/', $url);
 		
 		//Set defaults or chosen controllers
