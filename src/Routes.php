@@ -62,7 +62,11 @@ class Routes
 	
 	public $default_home=array();
 	
+	/**
+	* Array where beauty get variables are saved
+	*/
 	
+	public $get=array();
 	
 	public function __construct($folder_base)
 	{
@@ -129,6 +133,45 @@ class Routes
 		{
 			
 			$url=substr($url, 0, strlen($url)-1);
+		
+		}
+		
+		//Obtain get elements 
+		
+		$arr_extra_get=explode('/get/', $url);
+	
+		//Load Get variables from url
+		
+		$arr_name_get=array();
+		
+		if(isset($arr_extra_get[1]))
+		{
+		
+			$arr_variables=explode('/', $arr_extra_get[1]);
+		
+			$cget=count($arr_variables);
+
+			if($cget % 2 !=0 ) 
+			{
+
+				$arr_variables[]='';
+				$cget++;
+			}
+
+			if($cget % 2 ==0 )
+			{
+				//Get variables
+
+				for($x=0;$x<$cget;$x+=2)
+				{
+					
+					//Cut big variables...
+
+					$this->get[$arr_variables[$x]]=Utils::form_text(urldecode(substr($arr_variables[$x+1], 0, 255)));
+
+				}
+
+			}
 		
 		}
 		
