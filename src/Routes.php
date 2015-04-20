@@ -111,6 +111,7 @@ class Routes
 	* Check the correspondent url and return a response from a controller
 	*
 	* @param string $url A string containing the url to analize for response
+	* @param boolean $return_404 If true, this method return false if controller not exists, if false, return page 404.
 	*/
 	
 	public function response($url, $return_404=1)
@@ -353,6 +354,8 @@ class Routes
 			echo 'Error: page not found...';
 			
 		}
+		
+		die;
 		
 		//$this->response($url404);
 	}
