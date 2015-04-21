@@ -1,6 +1,6 @@
 <?php
 
-namespace PhaRouter;
+namespace PhangoApp\PhaRouter;
 
 /**
 * Very simple class for create controllers. 

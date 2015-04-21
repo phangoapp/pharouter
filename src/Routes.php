@@ -1,7 +1,7 @@
 <?php
 
-namespace PhaRouter;
-use PhaUtils\Utils;
+namespace PhangoApp\PhaRouter;
+use PhangoApp\PhaUtils\Utils;
 
 /**
 * A class used for create routes to a folder containing controllers folder
