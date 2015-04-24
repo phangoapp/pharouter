@@ -8,7 +8,7 @@ use PhangoApp\PhaUtils\Utils;
 *
 * You can use this class for create simple routes. Its best feature is to create an modular app based in folders with a controller folder where you place the controllers of your app. Only need a index php file where you use this class for create the routes to your controllers.
 *
-* The format of a url using Routes class is http://www.domain.com/folder_base/controller_file/method/{value1,value2...}
+* The format of a url using Routes class is http://www.domain.com/app/controller_file/method/{value1,value2...}
 */
 
 class Routes
@@ -18,25 +18,25 @@ class Routes
 	* Root path for includes app folders
 	*/
 	
-	public $root_path=__DIR__;
-
+	static public $root_path=__DIR__;
+	
 	/**
-	* The .php file where is contained the routes. Tipically index.php 
+	* Principal php file. If rewrite, put to ''
 	*/
 	
-	public $base_file='index.php';
+	static public $base_file='index.php';
 	
 	/**
 	* The root folder of php base file, tipically / or /example/
 	*/
 	
-	public $root_file='/';
+	static public $root_url='/';
 
 	/**
 	* The folder base
 	*/
 
-	public $folder_base='app';
+	static public $app='app';
 	
 	/**
 	* The controllers folder into of base folder
@@ -49,6 +49,12 @@ class Routes
 	*/
 	
 	public $default_404=array();
+	
+	/**
+	* An array with a list of apps in the system.
+	*/
+	
+	static public $apps=array();
 
 	/**
 	* An array where the routes are saved
@@ -68,13 +74,13 @@ class Routes
 	
 	public $get=array();
 	
-	public function __construct($folder_base)
+	public function __construct()
 	{
 	
-		$this->folder_base=$folder_base;
+		//Routes::$app=$app;
 		$this->default_home=array('controller' => 'index', 'method' => 'index', 'values' => array());
 		$this->default_404=array('controller' => '404', 'method' => 'index', 'values' => array());
-		$this->root_path=getcwd();
+		Routes::$root_path=getcwd();
 		//Prepare values how ip, etc...
 		
 		
@@ -98,12 +104,37 @@ class Routes
 	
 	}
 	
-	public function addRoutesFile($file_path)
+	/**
+	* Method for add the routes values.
+	*
+	* With this method you can load
+	*
+	*/
+	
+	public function addRoutesApps()
 	{
 	
-		include($file_path);
+		foreach(Routes::$apps as $app)
+		{
 		
-		$this->arr_routes=obtain_routes();
+			$file_path=Routes::$root_path.'/'.Routes::$app.'/'.$this->folder_controllers.'/routes.php';
+			
+			if(is_file($file_path))
+			{
+				include($file_path);
+				
+				$this->arr_routes=obtain_routes($this);
+				
+			}
+			
+		}
+	
+	}
+	
+	public function retRoutes()
+	{
+	
+		return $this->arr_routes;
 	
 	}
 	
@@ -119,14 +150,14 @@ class Routes
 		
 		//Clean the url
 		
-		if($this->root_file!='/')
+		if(Routes::$root_url!='/')
 		{
 		
-			$url=str_replace($this->root_file, '', $url);
+			$url=str_replace(Routes::$root_url, '', $url);
 		
 		}
 		
-		$url=str_replace($this->base_file, '', $url);
+		$url=str_replace(Routes::$base_file, '', $url);
 		
 		$url=substr($url, 1);
 		
@@ -192,24 +223,33 @@ class Routes
 		$method='index';
 		$params=array();
 		
+		//Checking of path url...
+		
 		$arr_url[0]=trim($arr_url[0]);
 		
 		if(isset($arr_url[0]) && $arr_url[0]!='')
 		{
 		
-			$controller=$arr_url[0];
+			Routes::$app=Utils::slugify($arr_url[0], $respect_upper=1, $replace_space='-', $replace_dot=1, $replace_barr=1);
 			
 		}
 		
-		if(isset($arr_url[1]))
+		if(isset($arr_url[1]) && $arr_url[1]!='')
 		{
 		
-			$method=$arr_url[1];
+			$controller=Utils::slugify($arr_url[1], $respect_upper=1, $replace_space='-', $replace_dot=1, $replace_barr=1);
 			
 		}
 		
-		$path_controller=$this->root_path.'/'.$this->folder_base.'/'.$this->folder_controllers.'/controller_'.$controller.'.php';
-// 		
+		if(isset($arr_url[2]))
+		{
+		
+			$method=Utils::slugify($arr_url[2], $respect_upper=1, $replace_space='-', $replace_dot=1, $replace_barr=1);;
+			
+		}
+		
+		$path_controller=Routes::$root_path.'/'.Routes::$app.'/'.$this->folder_controllers.'/controller_'.$controller.'.php';
+ 		
 		if(is_file($path_controller))
 		{
 			
@@ -231,7 +271,7 @@ class Routes
 						
 				$num_parameters=$p->getNumberOfRequiredParameters();
 			
-				$c=2;
+				$c=3;
 				$x=0;
 				
 				$arr_values=array_slice($arr_url, $c);
@@ -394,7 +434,7 @@ class Routes
 	
 		
 	
-		return $this->root_file.$this->base_file.'/'.$controller.'/'.$method.'/'.implode('/', $values);
+		return Routes::$root_url.'/'.Routes::$app.'/'.$controller.'/'.$method.'/'.implode('/', $values);
 	
 	}
 	
@@ -405,7 +445,7 @@ class Routes
 	static public function makeStaticUrl($base_file, $controller, $method='index', $values=array())
 	{
 	
-		return $this->root_file.$base_file.'/'.$controller.'/'.$method.'/'.implode('/', $values);
+		return Routes::$root_url.$base_file.'/'.$controller.'/'.$method.'/'.implode('/', $values);
 	
 	}
 
