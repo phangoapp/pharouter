@@ -250,7 +250,7 @@ class Routes
 		
 		$path_controller=Routes::$root_path.'/'.Routes::$app.'/'.$this->folder_controllers.'/controller_'.$controller.'.php';
  		
-		if(is_file($path_controller))
+		if(is_file($path_controller) && in_array(Routes::$app, Routes::$apps))
 		{
 			
 			
