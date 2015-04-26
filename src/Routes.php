@@ -114,20 +114,22 @@ class Routes
 	public function addRoutesApps()
 	{
 	
-		foreach(Routes::$apps as $app)
-		{
+		/*foreach(Routes::$apps as $app)
+		{*/
 		
-			$file_path=Routes::$root_path.'/'.Routes::$app.'/'.$this->folder_controllers.'/routes.php';
+		$file_path=Routes::$root_path.'/'.Routes::$app.'/'.$this->folder_controllers.'/routes.php';
+		
+		if(is_file($file_path))
+		{
+			include($file_path);
 			
-			if(is_file($file_path))
-			{
-				include($file_path);
-				
-				$this->arr_routes=obtain_routes($this);
-				
-			}
+			$func_name='obtain_routes_from_'.Routes::$app;
+			
+			$this->arr_routes=$func_name($this);
 			
 		}
+			
+		//}
 	
 	}
 	
