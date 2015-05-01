@@ -74,6 +74,12 @@ class Routes
 	
 	public $get=array();
 	
+	/**
+	* Type petition
+	*/
+	
+	public $type_petition='';
+	
 	public function __construct()
 	{
 	
@@ -81,6 +87,17 @@ class Routes
 		$this->default_home=array('controller' => 'index', 'method' => 'index', 'values' => array());
 		$this->default_404=array('controller' => '404', 'method' => 'index', 'values' => array());
 		Routes::$root_path=getcwd();
+		$this->type_petition=$_SERVER['REQUEST_METHOD'];
+		
+		session_start();
+		
+		if(!isset($_SESSION['csrf_token']))
+		{
+		
+			$_SESSION['csrf_token']=Utils::get_token();
+		
+		}
+		
 		//Prepare values how ip, etc...
 		
 		
@@ -163,11 +180,13 @@ class Routes
 		
 		$url=substr($url, 1);
 		
-		if(strpos($url, '/')==strlen($url)-1)
+		$last_slash=substr($url, -1);
+		
+		if($last_slash=='/')
 		{
 			
 			$url=substr($url, 0, strlen($url)-1);
-		
+			
 		}
 		
 		//Obtain get elements 
@@ -448,6 +467,19 @@ class Routes
 	{
 	
 		return Routes::$root_url.Routes::$base_file.'/'.$app.'/'.$controller.'/'.$method.'/'.implode('/', $values);
+	
+	}
+	
+	/**
+	* Method for redirects.
+	*/
+	
+	static public function redirect($url)
+	{
+	
+		header('Location: '.$url);
+	
+		die;
 	
 	}
 
