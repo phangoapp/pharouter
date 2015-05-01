@@ -436,7 +436,7 @@ class Routes
 	
 		
 	
-		return Routes::$root_url.'/'.Routes::$app.'/'.$controller.'/'.$method.'/'.implode('/', $values);
+		return Routes::$root_url.Routes::$base_file.'/'.Routes::$app.'/'.$controller.'/'.$method.'/'.implode('/', $values);
 	
 	}
 	
@@ -444,10 +444,10 @@ class Routes
 	* Method for create urls for all routes in the site.
 	*/
 	
-	static public function makeStaticUrl($base_file, $controller, $method='index', $values=array())
+	static public function makeStaticUrl($app, $controller, $method='index', $values=array())
 	{
 	
-		return Routes::$root_url.$base_file.'/'.$controller.'/'.$method.'/'.implode('/', $values);
+		return Routes::$root_url.Routes::$base_file.'/'.$app.'/'.$controller.'/'.$method.'/'.implode('/', $values);
 	
 	}
 
