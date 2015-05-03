@@ -89,15 +89,6 @@ class Routes
 		Routes::$root_path=getcwd();
 		$this->type_petition=$_SERVER['REQUEST_METHOD'];
 		
-		session_start();
-		
-		if(!isset($_SESSION['csrf_token']))
-		{
-		
-			$_SESSION['csrf_token']=Utils::get_token();
-		
-		}
-		
 		//Prepare values how ip, etc...
 		
 		
