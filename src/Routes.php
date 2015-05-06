@@ -45,6 +45,12 @@ class Routes
 	public $folder_controllers='controllers';
 	
 	/**
+	* The prefix controller name
+	*/
+	
+	public $prefix_controller='';
+	
+	/**
 	* 404 controller
 	*/
 	
@@ -270,7 +276,7 @@ class Routes
 			
 			include($path_controller);
 			
-			$controller_name=$controller.'Controller';
+			$controller_name=$controller.$this->prefix_controller.'Controller';
 			
 			//Check if class exists
 			
