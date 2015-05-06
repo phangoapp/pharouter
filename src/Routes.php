@@ -21,6 +21,12 @@ class Routes
 	static public $root_path=__DIR__;
 	
 	/**
+	* Php document root
+	*/
+	
+	static public $base_path=__DIR__;
+	
+	/**
 	* Principal php file. If rewrite, put to ''
 	*/
 	
@@ -92,7 +98,10 @@ class Routes
 		//Routes::$app=$app;
 		$this->default_home=array('controller' => 'index', 'method' => 'index', 'values' => array());
 		$this->default_404=array('controller' => '404', 'method' => 'index', 'values' => array());
+		
 		Routes::$root_path=getcwd();
+		Routes::$base_path=Routes::$root_path;
+		
 		$this->type_petition=$_SERVER['REQUEST_METHOD'];
 		
 		//Prepare values how ip, etc...
