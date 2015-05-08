@@ -90,7 +90,7 @@ class Routes
 	* Type petition
 	*/
 	
-	public $type_petition='';
+	public $request_method='';
 	
 	public function __construct()
 	{
@@ -102,7 +102,7 @@ class Routes
 		Routes::$root_path=getcwd();
 		Routes::$base_path=Routes::$root_path;
 		
-		$this->type_petition=$_SERVER['REQUEST_METHOD'];
+		$this->request_method=$_SERVER['REQUEST_METHOD'];
 		
 		//Prepare values how ip, etc...
 		
@@ -297,7 +297,7 @@ class Routes
 				$p = new \ReflectionMethod($controller_name, $method); 
 						
 				$num_parameters=$p->getNumberOfRequiredParameters();
-			
+				
 				$c=3;
 				$x=0;
 				
@@ -305,13 +305,18 @@ class Routes
 				
 				settype($this->arr_routes[$controller][$method], 'array');
 				
-				if($num_parameters==count($arr_values))
+				$c_param=count($arr_values);
+				
+				if($num_parameters==$c_param)
 				{
-			
+					
 					//Make a foreach for check parameters passed to the method
 					
-					foreach($p->getParameters() as $parameter)
+					$parameters=$p->getParameters();
+					
+					for($x=0;$x<$c_param;$x++)
 					{
+					
 						settype($arr_url[$c], 'string');
 						settype($this->arr_routes[$controller][$method][$x], 'string');
 						
@@ -328,7 +333,7 @@ class Routes
 						$params[]=$this->$format_func($arr_url[$c]);
 				
 						$c++;
-						$x++;
+						//$x++;
 					
 					}
 					
@@ -473,6 +478,17 @@ class Routes
 	{
 	
 		return Routes::$root_url.Routes::$base_file.'/'.$app.'/'.$controller.'/'.$method.'/'.implode('/', $values);
+	
+	}
+	
+	/**
+	* Method for create urls for all routes in differents sites.
+	*/
+	
+	static public function makeAllStaticUrl($base_url, $app, $controller, $method='index', $values=array())
+	{
+	
+		return $base_url.'/'.Routes::$base_file.'/'.$app.'/'.$controller.'/'.$method.'/'.implode('/', $values);
 	
 	}
 	
