@@ -461,7 +461,7 @@ class Routes
 	* Method for create urls for this route.
 	*/
 	
-	public function makeUrl($controller, $method='index', $values=array())
+	static public function makeUrl($controller, $method='index', $values=array())
 	{
 	
 		
@@ -488,7 +488,7 @@ class Routes
 	static public function makeAllStaticUrl($base_url, $app, $controller, $method='index', $values=array())
 	{
 	
-		return $base_url.'/'.Routes::$base_file.'/'.$app.'/'.$controller.'/'.$method.'/'.implode('/', $values);
+		return $base_url.'/'.$app.'/'.$controller.'/'.$method.'/'.implode('/', $values);
 	
 	}
 	
