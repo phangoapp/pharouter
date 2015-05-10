@@ -250,6 +250,8 @@ class Routes
 		$method='index';
 		$params=array();
 		
+		$method_path_index=2;
+		
 		//Checking of path url...
 		
 		$arr_url[0]=trim($arr_url[0]);
@@ -261,21 +263,43 @@ class Routes
 			
 		}
 		
+		$path_controller=Routes::$root_path.'/'.Routes::$app.'/'.$this->folder_controllers.'/controller_'.$controller.'.php';
+		
 		if(isset($arr_url[1]) && $arr_url[1]!='')
 		{
 		
 			$controller=Utils::slugify($arr_url[1], $respect_upper=1, $replace_space='-', $replace_dot=1, $replace_barr=1);
 			
-		}
-		
-		if(isset($arr_url[2]))
-		{
-		
-			$method=Utils::slugify($arr_url[2], $respect_upper=1, $replace_space='-', $replace_dot=1, $replace_barr=1);;
+			//Check is exists file controller, if not, use $arr_url[2] how path friends.
+			
+			$path_controller=Routes::$root_path.'/'.Routes::$app.'/'.$this->folder_controllers.'/controller_'.$controller.'.php';
+			
+			if(!file_exists($path_controller))
+			{
+			
+				if(isset($arr_url[$method_path_index]))
+				{
+				
+					$folder_controller=$controller;
+					$controller=$arr_url[$method_path_index];
+				
+					$path_controller=Routes::$root_path.'/'.Routes::$app.'/'.$this->folder_controllers.'/'.$folder_controller.'/controller_'.$controller.'.php';
+					
+					$method_path_index++;
+				
+				}
+			
+			}
+			
+			if(isset($arr_url[$method_path_index]))
+			{
+			
+				$method=Utils::slugify($arr_url[2], $respect_upper=1, $replace_space='-', $replace_dot=1, $replace_barr=1);;
+				
+			}
 			
 		}
 		
-		$path_controller=Routes::$root_path.'/'.Routes::$app.'/'.$this->folder_controllers.'/controller_'.$controller.'.php';
  		
 		if(is_file($path_controller) && in_array(Routes::$app, Routes::$apps))
 		{
@@ -298,7 +322,9 @@ class Routes
 						
 				$num_parameters=$p->getNumberOfRequiredParameters();
 				
-				$c=3;
+				$num_parameters_total=count($p->getParameters());
+				
+				$c=$method_path_index+1;
 				$x=0;
 				
 				$arr_values=array_slice($arr_url, $c);
@@ -307,7 +333,42 @@ class Routes
 				
 				$c_param=count($arr_values);
 				
-				if($num_parameters==$c_param)
+				if($c_param<=$num_parameters_total && $c_param>=$num_parameters)
+				{
+				
+					for($x=0;$x<$c_param;$x++)
+					{
+					
+						settype($arr_url[$c], 'string');
+						settype($this->arr_routes[$controller][$method][$x], 'string');
+						
+						if($this->arr_routes[$controller][$method][$x]=='')
+						{
+						
+							$this->arr_routes[$controller][$method][$x]='checkString';
+							
+						
+						}
+						
+						$format_func=$this->arr_routes[$controller][$method][$x];
+						
+						$params[]=$this->$format_func($arr_url[$c]);
+				
+						$c++;
+						//$x++;
+					
+					}
+					
+					if(!call_user_func_array(array($controller_class, $method), $params)===false)
+					{
+						
+						throw new Exception('Not exists method in this controller');
+					
+					}
+				
+				}
+				
+				/*if($num_parameters==$c_param)
 				{
 					
 					//Make a foreach for check parameters passed to the method
@@ -364,7 +425,7 @@ class Routes
 					$this->response404();
 					die;
 				
-				}
+				}*/
 				
 			}
 			else
@@ -461,7 +522,7 @@ class Routes
 	* Method for create urls for this route.
 	*/
 	
-	static public function makeUrl($controller, $method='index', $values=array())
+	static public function makeUrl($controller, $method='index', $values=array(), $get=array())
 	{
 	
 		
@@ -474,10 +535,13 @@ class Routes
 	* Method for create urls for all routes in the site.
 	*/
 	
-	static public function makeStaticUrl($app, $controller, $method='index', $values=array())
+	static public function makeStaticUrl($app, $controller, $method='index', $values=array(), $get=array())
 	{
+		$url_fancy=Routes::$root_url.Routes::$base_file.'/'.$app.'/'.$controller.'/'.$method.'/'.implode('/', $values);
+		
+		$url=Routes::addGetParameters($url_fancy, $get);
 	
-		return Routes::$root_url.Routes::$base_file.'/'.$app.'/'.$controller.'/'.$method.'/'.implode('/', $values);
+		return $url;
 	
 	}
 	
@@ -485,11 +549,66 @@ class Routes
 	* Method for create urls for all routes in differents sites.
 	*/
 	
-	static public function makeAllStaticUrl($base_url, $app, $controller, $method='index', $values=array())
+	static public function makeAllStaticUrl($base_url, $app, $controller, $method='index', $values=array(), $get=array())
 	{
 	
-		return $base_url.'/'.$app.'/'.$controller.'/'.$method.'/'.implode('/', $values);
+		$url_fancy=$base_url.'/'.$app.'/'.$controller.'/'.$method.'/'.implode('/', $values);
+		
+		$url=Routes::addGetParameters($url_fancy, $get);
+		
+		return $url;
 	
+	}
+	
+	/**
+	* Function used for add get parameters to a well-formed url based on make_fancy_url, make_direct_url and others.
+	*
+	* @param string $url_fancy well-formed url
+	* @param string $arr_data Hash with format key => value. The result is $_GET['key']=value
+	*/
+
+	static public function addGetParameters($url_fancy, $arr_data)
+	{
+
+		$arr_get=array();
+		
+		$sep='';
+		
+		$get_final='';
+		
+		if(count($arr_data)>0)
+		{
+
+			foreach($arr_data as $key => $value)
+			{
+
+				$arr_get[]=$key.'/'.$value;
+
+			}
+
+			$get_final=implode('/', $arr_get);
+
+			$sep='/get/';
+
+			if(preg_match('/\/$/', $url_fancy))
+			{
+
+				$sep='get/';
+
+			}
+			
+			
+			if(preg_match('/\/get\//', $url_fancy))
+			{
+
+				$sep='/';
+
+			}
+			
+		}
+
+		return $url_fancy.$sep.$get_final;
+
 	}
 	
 	/**
