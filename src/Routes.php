@@ -205,7 +205,7 @@ class Routes
 		
 		if(isset($arr_extra_get[1]))
 		{
-		
+			
 			$arr_variables=explode('/', $arr_extra_get[1]);
 		
 			$cget=count($arr_variables);
@@ -226,7 +226,8 @@ class Routes
 					
 					//Cut big variables...
 
-					$this->get[$arr_variables[$x]]=Utils::form_text(urldecode(substr($arr_variables[$x+1], 0, 255)));
+					$_GET[$arr_variables[$x]]=Utils::form_text(urldecode(substr($arr_variables[$x+1], 0, 255)));
+					
 
 				}
 
