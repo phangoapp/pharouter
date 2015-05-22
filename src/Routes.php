@@ -240,6 +240,7 @@ class Routes
 		$url=preg_replace('/\/\?.*$/', '', $url);
 		
 		//Delete get elements.
+		//Here can make a optimitation with the split used in obtain get...
 		
 		$url=preg_replace('/\/get\/.*$/', '', $url);
 		
