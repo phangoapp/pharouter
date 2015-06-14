@@ -120,7 +120,7 @@ class Routes
 	* @param array $values A set of values where is found
 	*/
 	
-	public function addRoutes($controller, $method='index', $values=array())
+	public function add_routes($controller, $method='index', $values=array())
 	{
 	
 		$this->arr_routes[$controller][$method]=$values;
@@ -134,7 +134,7 @@ class Routes
 	*
 	*/
 	
-	public function addRoutesApps()
+	public function add_routes_apps()
 	{
 	
 		/*foreach(Routes::$apps as $app)
@@ -156,7 +156,7 @@ class Routes
 	
 	}
 	
-	public function retRoutes()
+	public function ret_routes()
 	{
 	
 		return $this->arr_routes;
@@ -347,7 +347,7 @@ class Routes
 						if($this->arr_routes[$controller][$method][$x]=='')
 						{
 						
-							$this->arr_routes[$controller][$method][$x]='checkString';
+							$this->arr_routes[$controller][$method][$x]='check_string';
 							
 						
 						}
@@ -386,7 +386,7 @@ class Routes
 						if($this->arr_routes[$controller][$method][$x]=='')
 						{
 						
-							$this->arr_routes[$controller][$method][$x]='checkString';
+							$this->arr_routes[$controller][$method][$x]='check_string';
 							
 						
 						}
@@ -479,7 +479,7 @@ class Routes
 	
 		header($_SERVER["SERVER_PROTOCOL"]." 404 Not Found"); 
 		
-		$url404=$this->makeUrl($this->default_404['controller'], $this->default_404['method'], $this->default_404['values']);
+		$url404=$this->make_url($this->default_404['controller'], $this->default_404['method'], $this->default_404['values']);
 		
 		//Use views for this thing.
 		
@@ -499,7 +499,7 @@ class Routes
 	* Method used for check integer values for a controller method
 	*/
 	
-	public function checkInteger($value)
+	public function check_integer($value)
 	{
 	
 		settype($value, 'integer');
@@ -512,7 +512,7 @@ class Routes
 	* Method used for check integer values for a controller method
 	*/
 	
-	public function checkString($value)
+	public function check_string($value)
 	{
 	
 		//Normalize the text...
@@ -524,7 +524,7 @@ class Routes
 	* Method for create urls for this route.
 	*/
 	
-	static public function makeUrl($controller, $method='index', $values=array(), $get=array())
+	static public function make_url($controller, $method='index', $values=array(), $get=array())
 	{
 	
 		
@@ -537,11 +537,11 @@ class Routes
 	* Method for create urls for all routes in the site.
 	*/
 	
-	static public function makeStaticUrl($app, $controller, $method='index', $values=array(), $get=array())
+	static public function make_module_url($app, $controller, $method='index', $values=array(), $get=array())
 	{
 		$url_fancy=Routes::$root_url.Routes::$base_file.'/'.$app.'/'.$controller.'/'.$method.'/'.implode('/', $values);
 		
-		$url=Routes::addGetParameters($url_fancy, $get);
+		$url=Routes::add_get_parameters($url_fancy, $get);
 	
 		return $url;
 	
@@ -551,12 +551,12 @@ class Routes
 	* Method for create urls for all routes in differents sites.
 	*/
 	
-	static public function makeAllStaticUrl($base_url, $app, $controller, $method='index', $values=array(), $get=array())
+	static public function make_direct_url($base_url, $app, $controller, $method='index', $values=array(), $get=array())
 	{
 	
 		$url_fancy=$base_url.'/'.$app.'/'.$controller.'/'.$method.'/'.implode('/', $values);
 		
-		$url=Routes::addGetParameters($url_fancy, $get);
+		$url=Routes::add_get_parameters($url_fancy, $get);
 		
 		return $url;
 	
@@ -569,7 +569,7 @@ class Routes
 	* @param string $arr_data Hash with format key => value. The result is $_GET['key']=value
 	*/
 
-	static public function addGetParameters($url_fancy, $arr_data)
+	static public function add_get_parameters($url_fancy, $arr_data)
 	{
 
 		$arr_get=array();
