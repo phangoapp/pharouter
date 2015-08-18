@@ -87,6 +87,12 @@ class Routes
 	public $get=array();
 	
 	/**
+	* An array with config_paths for load configurations.
+	*/
+	
+	public $config_path=['settings'];
+	
+	/**
 	* Type petition
 	*/
 	
@@ -95,18 +101,28 @@ class Routes
 	public function __construct()
 	{
 	
-		//Routes::$app=$app;
-		$this->default_home=array('controller' => 'index', 'method' => 'index', 'values' => array());
-		$this->default_404=array('controller' => '404', 'method' => 'index', 'values' => array());
+		$this->default_home=array('controller' => 'index', 'method' => 'home', 'values' => array());
+		$this->default_404=array('controller' => '404', 'method' => 'home', 'values' => array());
 		
 		Routes::$root_path=getcwd();
 		Routes::$base_path=Routes::$root_path;
 		
 		$this->request_method=$_SERVER['REQUEST_METHOD'];
 		
-		//Prepare values how ip, etc...
-		
-		
+		$this->load_config();
+	
+	}
+	
+	public function load_config()
+	{
+	
+        //Load config here
+        foreach($this->config_path as $config)
+        {
+        
+            Utils::load_config("config_routes", $config);
+        
+        }
 	
 	}
 	
@@ -120,7 +136,7 @@ class Routes
 	* @param array $values A set of values where is found
 	*/
 	
-	public function add_routes($controller, $method='index', $values=array())
+	public function add_routes($controller, $method='home', $values=array())
 	{
 	
 		$this->arr_routes[$controller][$method]=$values;
@@ -251,7 +267,7 @@ class Routes
 		//Set defaults or chosen controllers
 		
 		$controller='index';
-		$method='index';
+		$method='home';
 		$params=array();
 		
 		$method_path_index=2;
@@ -304,10 +320,8 @@ class Routes
 			
 		}
 		
- 		
 		if(is_file($path_controller) && in_array(Routes::$app, Routes::$apps))
 		{
-			
 			
 			//Pass this route to the controller.
 			
@@ -371,65 +385,22 @@ class Routes
 					}
 				
 				}
-				
-				/*if($num_parameters==$c_param)
-				{
-					
-					//Make a foreach for check parameters passed to the method
-					
-					$parameters=$p->getParameters();
-					
-					for($x=0;$x<$c_param;$x++)
-					{
-					
-						settype($arr_url[$c], 'string');
-						settype($this->arr_routes[$controller][$method][$x], 'string');
-						
-						if($this->arr_routes[$controller][$method][$x]=='')
-						{
-						
-							$this->arr_routes[$controller][$method][$x]='check_string';
-							
-						
-						}
-						
-						$format_func=$this->arr_routes[$controller][$method][$x];
-						
-						$params[]=$this->$format_func($arr_url[$c]);
-				
-						$c++;
-						//$x++;
-					
-					}
-					
-					//Call to the method of the controller
-					
-					if(!call_user_func_array(array($controller_class, $method), $params)===false)
-					{
-					
-						if($return_404==1)
-						{
-					
-							$this->response404();
-							
-						}
-						else
-						{
-						
-							return false;
-						
-						}
-					
-					}
-					
-				}
 				else
 				{
-				
-					$this->response404();
-					die;
-				
-				}*/
+					if($return_404==1)
+					{
+                
+						$this->response404();
+
+					}
+					else
+					{
+                    
+						return false;
+                    
+					}
+                    
+				}
 				
 			}
 			else
@@ -526,7 +497,7 @@ class Routes
 	* Method for create urls for this route.
 	*/
 	
-	static public function make_url($controller, $method='index', $values=array(), $get=array())
+	static public function make_url($controller, $method='home', $values=array(), $get=array())
 	{
 	
 		
@@ -539,7 +510,7 @@ class Routes
 	* Method for create urls for all routes in the site.
 	*/
 	
-	static public function make_module_url($app, $controller, $method='index', $values=array(), $get=array())
+	static public function make_module_url($app, $controller, $method='home', $values=array(), $get=array())
 	{
 		$url_fancy=Routes::$root_url.Routes::$base_file.'/'.$app.'/'.$controller.'/'.$method.'/'.implode('/', $values);
 		
@@ -553,7 +524,7 @@ class Routes
 	* Method for create urls for all routes in differents sites.
 	*/
 	
-	static public function make_direct_url($base_url, $app, $controller, $method='index', $values=array(), $get=array())
+	static public function make_direct_url($base_url, $app, $controller, $method='home', $values=array(), $get=array())
 	{
 	
 		$url_fancy=$base_url.'/'.$app.'/'.$controller.'/'.$method.'/'.implode('/', $values);
@@ -616,7 +587,8 @@ class Routes
 	}
 	
 	/**
-	* Method for redirects.
+	* Method for make simple redirecs using header function.
+	* @param string $url The url to redirect
 	*/
 	
 	static public function redirect($url)
