@@ -334,7 +334,7 @@ class Routes
 			if(class_exists($controller_name) && method_exists($controller_name, $method))
 			{
 			
-				$controller_class=new $controller_name($this);
+				$controller_class=new $controller_name($this, Routes::$app);
 				
 				$p = new \ReflectionMethod($controller_name, $method); 
 						
