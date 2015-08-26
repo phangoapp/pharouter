@@ -45,6 +45,25 @@ class Routes
 	static public $app='app';
 	
 	/**
+    * An array with a list of apps in the system.
+    */
+    
+    static public $apps=array();
+	
+	/**
+    * Accept easy urls. For development is cool. For deployment you can use cool urls. 
+    * @warning if you set this property to 0 or false and you don't defined pretty urls, your application will crash
+    */
+    
+    static public $accept_easy_urls=1;
+    
+    /**
+    * An array where load the urls from a module
+    */
+    
+    static public $urls=array();
+	
+	/**
 	* The controllers folder into of base folder
 	*/
 	
@@ -61,12 +80,6 @@ class Routes
 	*/
 	
 	public $default_404=array();
-	
-	/**
-	* An array with a list of apps in the system.
-	*/
-	
-	static public $apps=array();
 
 	/**
 	* An array where the routes are saved
@@ -123,59 +136,6 @@ class Routes
             Utils::load_config("config_routes", $config);
         
         }
-	
-	}
-	
-	/**
-	* Method for add the routes values.
-	*
-	* With this method you define the checking of parameters value of the controller.
-	*
-	* @param string $controller The name of the controller
-	* @param string $method the method loaded by the controller
-	* @param array $values A set of values where is found
-	*/
-	
-	public function add_routes($controller, $method='home', $values=array())
-	{
-	
-		$this->arr_routes[$controller][$method]=$values;
-	
-	}
-	
-	/**
-	* Method for add the routes values.
-	*
-	* With this method you can load
-	*
-	*/
-	
-	public function add_routes_apps()
-	{
-	
-		/*foreach(Routes::$apps as $app)
-		{*/
-		
-		$file_path=Routes::$root_path.'/'.Routes::$app.'/'.$this->folder_controllers.'/routes.php';
-		
-		if(is_file($file_path))
-		{
-			include($file_path);
-			
-			$func_name='obtain_routes_from_'.Routes::$app;
-			
-			$this->arr_routes=$func_name($this);
-			
-		}
-			
-		//}
-	
-	}
-	
-	public function ret_routes()
-	{
-	
-		return $this->arr_routes;
 	
 	}
 	
@@ -268,57 +228,105 @@ class Routes
 		
 		$controller='index';
 		$method='home';
-		$params=array();
+// 		$params=array();
 		
 		$method_path_index=2;
 		
 		//Checking of path url...
 		
+		$path_controller='';
+		
+		//First check urls.php
+		
 		$arr_url[0]=trim($arr_url[0]);
+
+        $loaded_url=0;
+            
+        if(isset($arr_url[0]) && $arr_url[0]!='')
+        {
+        
+            Routes::$app=Utils::slugify($arr_url[0], $respect_upper=1, $replace_space='-', $replace_dot=1, $replace_barr=1);
+            
+            //Load url from this module
+            
+            Utils::load_config('urls', Routes::$root_path.'/'.Routes::$app);
+
+            foreach(Routes::$urls as $url_def => $route)
+            {
+            
+                if(preg_match('/^'.$url_def.'$/', $url, $matches))
+                {
+                
+                    $c_matches=count($matches);
+                    
+                    $method_path_index=count($arr_url)-($c_matches);
+                    
+                    $index=$method_path_index;
+                
+                    for($x=1;$x<$c_matches;$x++)
+                    {
+                        
+                        $arr_url[$index]=$matches[$x];
+                    
+                    }
+                    
+                    $controller=$route[0];
+                    
+                    $method=$route[1];
+                
+                    $loaded_url=1;
+                    
+                    break;
+                
+                }
+            
+            }
+            
+        }
+        
+        $path_controller=Routes::$root_path.'/'.Routes::$app.'/'.$this->folder_controllers.'/controller_'.$controller.'.php';
 		
-		if(isset($arr_url[0]) && $arr_url[0]!='')
+		//Search normal urls if $accept_easy_urls is true
+		
+		if(Routes::$accept_easy_urls && $loaded_url==0)
 		{
-		
-			Routes::$app=Utils::slugify($arr_url[0], $respect_upper=1, $replace_space='-', $replace_dot=1, $replace_barr=1);
-			
-		}
-		
-		$path_controller=Routes::$root_path.'/'.Routes::$app.'/'.$this->folder_controllers.'/controller_'.$controller.'.php';
-		
-		if(isset($arr_url[1]) && $arr_url[1]!='')
-		{
-		
-			$controller=Utils::slugify($arr_url[1], $respect_upper=1, $replace_space='-', $replace_dot=1, $replace_barr=1);
-			
-			//Check is exists file controller, if not, use $arr_url[2] how path friends.
-			
-			$path_controller=Routes::$root_path.'/'.Routes::$app.'/'.$this->folder_controllers.'/controller_'.$controller.'.php';
-			
-			if(!file_exists($path_controller))
-			{
-			
-				if(isset($arr_url[$method_path_index]))
-				{
-				
-					$folder_controller=$controller;
-					$controller=$arr_url[$method_path_index];
-				
-					$path_controller=Routes::$root_path.'/'.Routes::$app.'/'.$this->folder_controllers.'/'.$folder_controller.'/controller_'.$controller.'.php';
-					
-					$method_path_index++;
-				
-				}
-			
-			}
-			
-			if(isset($arr_url[$method_path_index]))
-			{
-			
-				$method=Utils::slugify($arr_url[2], $respect_upper=1, $replace_space='-', $replace_dot=1, $replace_barr=1);;
-				
-			}
-			
-		}
+            
+            if(isset($arr_url[1]) && $arr_url[1]!='')
+            {
+            
+                $controller=Utils::slugify($arr_url[1], $respect_upper=1, $replace_space='-', $replace_dot=1, $replace_barr=1);
+                
+                //Check is exists file controller, if not, use $arr_url[2] how path friends.
+                
+                $path_controller=Routes::$root_path.'/'.Routes::$app.'/'.$this->folder_controllers.'/controller_'.$controller.'.php';
+                
+                if(!file_exists($path_controller))
+                {
+                
+                    if(isset($arr_url[$method_path_index]))
+                    {
+                    
+                        $folder_controller=$controller;
+                        $controller=$arr_url[$method_path_index];
+                    
+                        $path_controller=Routes::$root_path.'/'.Routes::$app.'/'.$this->folder_controllers.'/'.$folder_controller.'/controller_'.$controller.'.php';
+                        
+                        $method_path_index++;
+                    
+                    }
+                
+                }
+                
+                if(isset($arr_url[$method_path_index]))
+                {
+                
+                    $method=Utils::slugify($arr_url[2], $respect_upper=1, $replace_space='-', $replace_dot=1, $replace_barr=1);;
+                    
+                }
+                
+            }
+            
+        }
 		
 		if(is_file($path_controller) && in_array(Routes::$app, Routes::$apps))
 		{
@@ -452,16 +460,18 @@ class Routes
 	
 		header($_SERVER["SERVER_PROTOCOL"]." 404 Not Found"); 
 		
-		$url404=$this->make_url($this->default_404['controller'], $this->default_404['method'], $this->default_404['values']);
+		/*$url404=$this->make_url($this->default_404['controller'], $this->default_404['method'], $this->default_404['values']);
 		
 		//Use views for this thing.
 		
 		if(!$this->response($url404, 0))
-		{
+		{*/
 		
-			echo 'Error: page not found...';
+		//use a view
+		
+        echo 'Error: page not found...';
 			
-		}
+		//}
 		
 		die;
 		
