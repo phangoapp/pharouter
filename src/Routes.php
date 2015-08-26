@@ -228,7 +228,7 @@ class Routes
 		
 		$controller='index';
 		$method='home';
-// 		$params=array();
+		$params=array();
 		
 		$method_path_index=2;
 		
@@ -256,7 +256,7 @@ class Routes
             
                 if(preg_match('/^'.$url_def.'$/', $url, $matches))
                 {
-                
+                    
                     $c_matches=count($matches);
                     
                     $method_path_index=count($arr_url)-($c_matches);
