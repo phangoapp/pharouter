@@ -109,7 +109,7 @@ class Routes
 	* Type petition
 	*/
 	
-	public $request_method='';
+	static public $request_method='';
 	
 	public function __construct()
 	{
@@ -120,7 +120,7 @@ class Routes
 		Routes::$root_path=getcwd();
 		Routes::$base_path=Routes::$root_path;
 		
-		$this->request_method=$_SERVER['REQUEST_METHOD'];
+		Routes::$request_method=$_SERVER['REQUEST_METHOD'];
 		
 		$this->load_config();
 	
