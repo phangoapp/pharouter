@@ -11,11 +11,21 @@ namespace PhangoApp\PhaRouter;
 class Controller {
 
 	protected $route;
+	protected $name="";
 
-	public function __construct($route)
+	public function __construct($route, $name, $yes_view=1)
 	{
 
 		$this->route=$route;
+		$this->name=$name;
+		
+		if($yes_view==1)
+		{
+		
+			\PhangoApp\PhaView\View::$folder_env[]='modules/'.$this->name.'/views';
+			\PhangoApp\PhaView\View::$media_env[]='modules/'.$this->name;
+		
+		}
 
 	}
 

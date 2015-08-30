@@ -45,6 +45,25 @@ class Routes
 	static public $app='app';
 	
 	/**
+    * An array with a list of apps in the system.
+    */
+    
+    static public $apps=array();
+	
+	/**
+    * Accept easy urls. For development is cool. For deployment you can use cool urls. 
+    * @warning if you set this property to 0 or false and you don't defined pretty urls, your application will crash
+    */
+    
+    static public $accept_easy_urls=1;
+    
+    /**
+    * An array where load the urls from a module
+    */
+    
+    static public $urls=array();
+	
+	/**
 	* The controllers folder into of base folder
 	*/
 	
@@ -61,12 +80,6 @@ class Routes
 	*/
 	
 	public $default_404=array();
-	
-	/**
-	* An array with a list of apps in the system.
-	*/
-	
-	static public $apps=array();
 
 	/**
 	* An array where the routes are saved
@@ -87,79 +100,42 @@ class Routes
 	public $get=array();
 	
 	/**
+	* An array with config_paths for load configurations.
+	*/
+	
+	public $config_path=['settings'];
+	
+	/**
 	* Type petition
 	*/
 	
-	public $request_method='';
+	static public $request_method='';
 	
 	public function __construct()
 	{
 	
-		//Routes::$app=$app;
-		$this->default_home=array('controller' => 'index', 'method' => 'index', 'values' => array());
-		$this->default_404=array('controller' => '404', 'method' => 'index', 'values' => array());
+		$this->default_home=array('controller' => 'index', 'method' => 'home', 'values' => array());
+		$this->default_404=array('controller' => '404', 'method' => 'home', 'values' => array());
 		
 		Routes::$root_path=getcwd();
 		Routes::$base_path=Routes::$root_path;
 		
-		$this->request_method=$_SERVER['REQUEST_METHOD'];
+		Routes::$request_method=$_SERVER['REQUEST_METHOD'];
 		
-		//Prepare values how ip, etc...
-		
-		
+		$this->load_config();
 	
 	}
 	
-	/**
-	* Method for add the routes values.
-	*
-	* With this method you define the checking of parameters value of the controller.
-	*
-	* @param string $controller The name of the controller
-	* @param string $method the method loaded by the controller
-	* @param array $values A set of values where is found
-	*/
-	
-	public function add_routes($controller, $method='index', $values=array())
+	public function load_config()
 	{
 	
-		$this->arr_routes[$controller][$method]=$values;
-	
-	}
-	
-	/**
-	* Method for add the routes values.
-	*
-	* With this method you can load
-	*
-	*/
-	
-	public function add_routes_apps()
-	{
-	
-		/*foreach(Routes::$apps as $app)
-		{*/
-		
-		$file_path=Routes::$root_path.'/'.Routes::$app.'/'.$this->folder_controllers.'/routes.php';
-		
-		if(is_file($file_path))
-		{
-			include($file_path);
-			
-			$func_name='obtain_routes_from_'.Routes::$app;
-			
-			$this->arr_routes=$func_name($this);
-			
-		}
-			
-		//}
-	
-	}
-	
-	public function ret_routes()
-	{
-	
-		return $this->arr_routes;
+        //Load config here
+        foreach($this->config_path as $config)
+        {
+        
+            Utils::load_config("config_routes", $config);
+        
+        }
 	
 	}
 	
@@ -251,63 +227,109 @@ class Routes
 		//Set defaults or chosen controllers
 		
 		$controller='index';
-		$method='index';
+		$method='home';
 		$params=array();
 		
 		$method_path_index=2;
 		
 		//Checking of path url...
 		
+		$path_controller='';
+		
+		//First check urls.php
+		
 		$arr_url[0]=trim($arr_url[0]);
+
+        $loaded_url=0;
+            
+        if(isset($arr_url[0]) && $arr_url[0]!='')
+        {
+        
+            Routes::$app=Utils::slugify($arr_url[0], $respect_upper=1, $replace_space='-', $replace_dot=1, $replace_barr=1);
+            
+            //Load url from this module
+            
+            Utils::load_config('urls', Routes::$root_path.'/'.Routes::$app);
+
+            foreach(Routes::$urls as $url_def => $route)
+            {
+            
+                if(preg_match('/^'.$url_def.'$/', $url, $matches))
+                {
+                    
+                    $c_matches=count($matches);
+                    
+                    $method_path_index=count($arr_url)-($c_matches);
+                    
+                    $index=$method_path_index;
+                
+                    for($x=1;$x<$c_matches;$x++)
+                    {
+                        
+                        $arr_url[$index]=$matches[$x];
+                    
+                    }
+                    
+                    $controller=$route[0];
+                    
+                    $method=$route[1];
+                
+                    $loaded_url=1;
+                    
+                    break;
+                
+                }
+            
+            }
+            
+        }
+        
+        $path_controller=Routes::$root_path.'/'.Routes::$app.'/'.$this->folder_controllers.'/controller_'.$controller.'.php';
 		
-		if(isset($arr_url[0]) && $arr_url[0]!='')
+		//Search normal urls if $accept_easy_urls is true
+		
+		if(Routes::$accept_easy_urls && $loaded_url==0)
 		{
+            
+            if(isset($arr_url[1]) && $arr_url[1]!='')
+            {
+            
+                $controller=Utils::slugify($arr_url[1], $respect_upper=1, $replace_space='-', $replace_dot=1, $replace_barr=1);
+                
+                //Check is exists file controller, if not, use $arr_url[2] how path friends.
+                
+                $path_controller=Routes::$root_path.'/'.Routes::$app.'/'.$this->folder_controllers.'/controller_'.$controller.'.php';
+                
+                if(!file_exists($path_controller))
+                {
+                
+                    if(isset($arr_url[$method_path_index]))
+                    {
+                    
+                        $folder_controller=$controller;
+                        $controller=$arr_url[$method_path_index];
+                    
+                        $path_controller=Routes::$root_path.'/'.Routes::$app.'/'.$this->folder_controllers.'/'.$folder_controller.'/controller_'.$controller.'.php';
+                        
+                        $method_path_index++;
+                    
+                    }
+                
+                }
+                
+                if(isset($arr_url[$method_path_index]))
+                {
+                
+                    $method=Utils::slugify($arr_url[2], $respect_upper=1, $replace_space='-', $replace_dot=1, $replace_barr=1);;
+                    
+                }
+                
+            }
+            
+        }
 		
-			Routes::$app=Utils::slugify($arr_url[0], $respect_upper=1, $replace_space='-', $replace_dot=1, $replace_barr=1);
-			
-		}
-		
-		$path_controller=Routes::$root_path.'/'.Routes::$app.'/'.$this->folder_controllers.'/controller_'.$controller.'.php';
-		
-		if(isset($arr_url[1]) && $arr_url[1]!='')
-		{
-		
-			$controller=Utils::slugify($arr_url[1], $respect_upper=1, $replace_space='-', $replace_dot=1, $replace_barr=1);
-			
-			//Check is exists file controller, if not, use $arr_url[2] how path friends.
-			
-			$path_controller=Routes::$root_path.'/'.Routes::$app.'/'.$this->folder_controllers.'/controller_'.$controller.'.php';
-			
-			if(!file_exists($path_controller))
-			{
-			
-				if(isset($arr_url[$method_path_index]))
-				{
-				
-					$folder_controller=$controller;
-					$controller=$arr_url[$method_path_index];
-				
-					$path_controller=Routes::$root_path.'/'.Routes::$app.'/'.$this->folder_controllers.'/'.$folder_controller.'/controller_'.$controller.'.php';
-					
-					$method_path_index++;
-				
-				}
-			
-			}
-			
-			if(isset($arr_url[$method_path_index]))
-			{
-			
-				$method=Utils::slugify($arr_url[2], $respect_upper=1, $replace_space='-', $replace_dot=1, $replace_barr=1);;
-				
-			}
-			
-		}
-		
- 		
 		if(is_file($path_controller) && in_array(Routes::$app, Routes::$apps))
 		{
-			
 			
 			//Pass this route to the controller.
 			
@@ -320,7 +342,7 @@ class Routes
 			if(class_exists($controller_name) && method_exists($controller_name, $method))
 			{
 			
-				$controller_class=new $controller_name($this);
+				$controller_class=new $controller_name($this, Routes::$app);
 				
 				$p = new \ReflectionMethod($controller_name, $method); 
 						
@@ -337,7 +359,7 @@ class Routes
 				
 				$c_param=count($arr_values);
 				
-				if($c_param<=$num_parameters_total && $c_param>=$num_parameters)
+				if($c_param<=$num_parameters_total && $c_param>=$num_parameters && $method!=='__construct' && $p->isPublic())
 				{
 				
 					for($x=0;$x<$c_param;$x++)
@@ -362,74 +384,32 @@ class Routes
 						//$x++;
 					
 					}
-					
-					if(!call_user_func_array(array($controller_class, $method), $params)===false)
-					{
-						
-						throw new Exception('Not exists method in this controller');
-					
-					}
+                
+                
+                    if(!call_user_func_array(array($controller_class, $method), $params)===false)
+                    {
+                        
+                        throw new Exception('Not exists method in this controller');
+                    
+                    }
 				
-				}
-				
-				/*if($num_parameters==$c_param)
-				{
-					
-					//Make a foreach for check parameters passed to the method
-					
-					$parameters=$p->getParameters();
-					
-					for($x=0;$x<$c_param;$x++)
-					{
-					
-						settype($arr_url[$c], 'string');
-						settype($this->arr_routes[$controller][$method][$x], 'string');
-						
-						if($this->arr_routes[$controller][$method][$x]=='')
-						{
-						
-							$this->arr_routes[$controller][$method][$x]='check_string';
-							
-						
-						}
-						
-						$format_func=$this->arr_routes[$controller][$method][$x];
-						
-						$params[]=$this->$format_func($arr_url[$c]);
-				
-						$c++;
-						//$x++;
-					
-					}
-					
-					//Call to the method of the controller
-					
-					if(!call_user_func_array(array($controller_class, $method), $params)===false)
-					{
-					
-						if($return_404==1)
-						{
-					
-							$this->response404();
-							
-						}
-						else
-						{
-						
-							return false;
-						
-						}
-					
-					}
-					
 				}
 				else
 				{
-				
-					$this->response404();
-					die;
-				
-				}*/
+					if($return_404==1)
+					{
+                
+						$this->response404();
+
+					}
+					else
+					{
+                    
+						return false;
+                    
+					}
+                    
+				}
 				
 			}
 			else
@@ -481,16 +461,18 @@ class Routes
 	
 		header($_SERVER["SERVER_PROTOCOL"]." 404 Not Found"); 
 		
-		$url404=$this->make_url($this->default_404['controller'], $this->default_404['method'], $this->default_404['values']);
+		/*$url404=$this->make_url($this->default_404['controller'], $this->default_404['method'], $this->default_404['values']);
 		
 		//Use views for this thing.
 		
 		if(!$this->response($url404, 0))
-		{
+		{*/
 		
-			echo 'Error: page not found...';
+		//use a view
+		
+        echo 'Error: page not found...';
 			
-		}
+		//}
 		
 		die;
 		
@@ -526,7 +508,7 @@ class Routes
 	* Method for create urls for this route.
 	*/
 	
-	static public function make_url($controller, $method='index', $values=array(), $get=array())
+	static public function make_url($controller, $method='home', $values=array(), $get=array())
 	{
 	
 		
@@ -539,7 +521,7 @@ class Routes
 	* Method for create urls for all routes in the site.
 	*/
 	
-	static public function make_module_url($app, $controller, $method='index', $values=array(), $get=array())
+	static public function make_module_url($app, $controller, $method='home', $values=array(), $get=array())
 	{
 		$url_fancy=Routes::$root_url.Routes::$base_file.'/'.$app.'/'.$controller.'/'.$method.'/'.implode('/', $values);
 		
@@ -553,7 +535,7 @@ class Routes
 	* Method for create urls for all routes in differents sites.
 	*/
 	
-	static public function make_direct_url($base_url, $app, $controller, $method='index', $values=array(), $get=array())
+	static public function make_direct_url($base_url, $app, $controller, $method='home', $values=array(), $get=array())
 	{
 	
 		$url_fancy=$base_url.'/'.$app.'/'.$controller.'/'.$method.'/'.implode('/', $values);
@@ -616,7 +598,8 @@ class Routes
 	}
 	
 	/**
-	* Method for redirects.
+	* Method for make simple redirecs using header function.
+	* @param string $url The url to redirect
 	*/
 	
 	static public function redirect($url)
