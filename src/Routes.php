@@ -359,7 +359,7 @@ class Routes
 				
 				$c_param=count($arr_values);
 				
-				if($c_param<=$num_parameters_total && $c_param>=$num_parameters)
+				if($c_param<=$num_parameters_total && $c_param>=$num_parameters && $method!=='__construct' && $p->isPublic())
 				{
 				
 					for($x=0;$x<$c_param;$x++)
@@ -384,13 +384,14 @@ class Routes
 						//$x++;
 					
 					}
-					
-					if(!call_user_func_array(array($controller_class, $method), $params)===false)
-					{
-						
-						throw new Exception('Not exists method in this controller');
-					
-					}
+                
+                
+                    if(!call_user_func_array(array($controller_class, $method), $params)===false)
+                    {
+                        
+                        throw new Exception('Not exists method in this controller');
+                    
+                    }
 				
 				}
 				else
