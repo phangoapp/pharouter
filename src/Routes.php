@@ -150,15 +150,10 @@ class Routes
 	{
 		
 		//Clean the url
-		
-		if(Routes::$root_url!='/')
-		{
-			$c=strlen(Routes::$root_url);
-			
-			//$url=str_replace(Routes::$root_url, '', $url);
-			
-			$url=substr($url, $c, strlen($url)-$c);
-		}
+
+        $c=strlen(Routes::$root_url);
+        
+        $url=substr($url, $c, strlen($url)-$c);
 		
 		$url=str_replace(Routes::$base_file, '', $url);
 		
