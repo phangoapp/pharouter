@@ -117,8 +117,8 @@ class Routes
 		$this->default_home=array('controller' => 'index', 'method' => 'home', 'values' => array());
 		$this->default_404=array('controller' => '404', 'method' => 'home', 'values' => array());
 		
-		Routes::$root_path=getcwd();
-		Routes::$base_path=Routes::$root_path;
+		Routes::$base_path=getcwd();
+		Routes::$root_path=Routes::$base_path;
 		
 		Routes::$request_method=$_SERVER['REQUEST_METHOD'];
 		
