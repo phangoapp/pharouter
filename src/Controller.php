@@ -22,8 +22,8 @@ class Controller {
 		if($yes_view==1)
 		{
 		
-			\PhangoApp\PhaView\View::$folder_env[]='modules/'.$this->name.'/views';
-			\PhangoApp\PhaView\View::$media_env[]='modules/'.$this->name;
+			\PhangoApp\PhaView\View::$folder_env[]='vendor/'.Routes::$prefix_path[$this->name].$this->name.'/views';
+			\PhangoApp\PhaView\View::$media_env[]='vendor/'.Routes::$prefix_path[$this->name].$this->name;
 		
 		}
 

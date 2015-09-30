@@ -27,6 +27,12 @@ class Routes
 	static public $base_path=__DIR__;
 	
 	/**
+    * Prefix for the path
+    */
+    
+    static public $prefix_path=[];
+	
+	/**
 	* Principal php file. If rewrite, put to ''
 	*/
 	
@@ -148,6 +154,20 @@ class Routes
 	
 	public function response($url, $return_404=1)
 	{
+		//Clean the routes
+		
+            
+        Routes::$app=basename(Routes::$app);
+		
+		foreach(Routes::$apps as $key_app => $app)
+		{
+		
+            $arr_app=explode('/', $app);
+            
+            Routes::$prefix_path[$arr_app[1]]='/'.$arr_app[0].'/';
+            Routes::$apps[$key_app]=$arr_app[1];
+		
+		}
 		
 		//Clean the url
 
@@ -244,7 +264,7 @@ class Routes
             
             //Load url from this module
             
-            Utils::load_config('urls', Routes::$root_path.'/'.Routes::$app);
+            Utils::load_config('urls', Routes::$root_path.Routes::$prefix_path[Routes::$app].Routes::$app);
 
             foreach(Routes::$urls as $url_def => $route)
             {
@@ -279,7 +299,7 @@ class Routes
             
         }
         
-        $path_controller=Routes::$root_path.'/'.Routes::$app.'/'.$this->folder_controllers.'/controller_'.$controller.'.php';
+        $path_controller=Routes::$root_path.Routes::$prefix_path[Routes::$app].Routes::$app.'/'.$this->folder_controllers.'/controller_'.$controller.'.php';
 		
 		//Search normal urls if $accept_easy_urls is true
 		
@@ -293,7 +313,7 @@ class Routes
                 
                 //Check is exists file controller, if not, use $arr_url[2] how path friends.
                 
-                $path_controller=Routes::$root_path.'/'.Routes::$app.'/'.$this->folder_controllers.'/controller_'.$controller.'.php';
+                $path_controller=Routes::$root_path.Routes::$prefix_path[Routes::$app].Routes::$app.'/'.$this->folder_controllers.'/controller_'.$controller.'.php';
                 
                 if(!file_exists($path_controller))
                 {
@@ -304,7 +324,7 @@ class Routes
                         $folder_controller=$controller;
                         $controller=$arr_url[$method_path_index];
                     
-                        $path_controller=Routes::$root_path.'/'.Routes::$app.'/'.$this->folder_controllers.'/'.$folder_controller.'/controller_'.$controller.'.php';
+                        $path_controller=Routes::$root_path.Routes::$prefix_path[Routes::$app].Routes::$app.'/'.$this->folder_controllers.'/'.$folder_controller.'/controller_'.$controller.'.php';
                         
                         $method_path_index++;
                     
@@ -322,7 +342,7 @@ class Routes
             }
             
         }
-		
+
 		if(is_file($path_controller) && in_array(Routes::$app, Routes::$apps))
 		{
 			
