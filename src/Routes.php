@@ -156,6 +156,7 @@ class Routes
 	{
 		//Clean the routes
 		
+		ob_start();
             
         Routes::$app=basename(Routes::$app);
 		
@@ -463,6 +464,8 @@ class Routes
 			}
 		
 		}
+		
+		ob_end_flush();
 	
 	}
 	
