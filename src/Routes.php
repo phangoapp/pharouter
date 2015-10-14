@@ -263,6 +263,8 @@ class Routes
         
             Routes::$app=Utils::slugify($arr_url[0], $respect_upper=1, $replace_space='-', $replace_dot=1, $replace_barr=1);
             
+            settype(Routes::$prefix_path[Routes::$app], 'string');
+            
             //Load url from this module
             
             Utils::load_config('urls', Routes::$root_path.Routes::$prefix_path[Routes::$app].Routes::$app);
