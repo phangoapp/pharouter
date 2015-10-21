@@ -519,8 +519,8 @@ class Routes
 	public function check_string($value)
 	{
 	
-		//Normalize the text...
-		return Utils::slugify($value, 1);
+		//Quit shitty things how slash and quotes
+		return strtr($value,'/"', '--');
 	
 	}
 	
