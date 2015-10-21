@@ -407,7 +407,7 @@ class Routes
                     if(!call_user_func_array(array($controller_class, $method), $params)===false)
                     {
                         
-                        throw new Exception('Not exists method in this controller');
+                        throw new \Exception('Not exists method in this controller');
                     
                     }
 				
