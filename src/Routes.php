@@ -171,6 +171,10 @@ class Routes
 		}
 		
 		//Clean the url
+		
+		//Delete $_GET elements.
+    
+        $url=preg_replace('/\?.*$/', '', $url);
 
         $c=strlen(Routes::$root_url);
         
@@ -228,10 +232,6 @@ class Routes
 			}
 		
 		}
-		
-		//Delete $_GET elements.
-	
-		$url=preg_replace('/\/\?.*$/', '', $url);
 		
 		//Delete get elements.
 		//Here can make a optimitation with the split used in obtain get...
@@ -520,7 +520,7 @@ class Routes
 	{
 	
 		//Quit shitty things how slash and quotes
-		return strtr($value,'/"', '--');
+		return strtr($value,'/"`', '---');
 	
 	}
 	
