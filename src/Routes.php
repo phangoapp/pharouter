@@ -112,6 +112,12 @@ class Routes
 	public $config_path=['settings'];
 	
 	/**
+	* An array with callbacks to load in the end of request.
+	*/
+	
+	public $arr_finish_callbacks=array();
+	
+	/**
 	* Type petition
 	*/
 	
@@ -408,6 +414,19 @@ class Routes
                     {
                         
                         throw new \Exception('Not exists method in this controller');
+                    
+                    }
+                    else
+                    {
+                    
+                        //Execute post tasks
+                        
+                        foreach($this->arr_finish_callbacks as $callback => $arguments)
+                        {
+                        
+                            call_user_func_array($callback, $arguments);
+                        
+                        }
                     
                     }
 				
