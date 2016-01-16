@@ -586,6 +586,19 @@ class Routes
 	}
 	
 	/**
+	* Method for create arbitrary urls. Is useful when use urls.php in your module.
+	*/
+	
+	static public function make_simple_url($url_path, $values=array(), $get=array())
+	{
+	
+        $url=Routes::$root_url.Routes::$base_file.'/'.$url_path.'/'.implode('/', $values);
+        
+        return Routes::add_get_parameters($url, $get);
+	
+	}
+	
+	/**
 	* Function used for add get parameters to a well-formed url based on make_fancy_url, make_direct_url and others.
 	*
 	* @param string $url_fancy well-formed url
