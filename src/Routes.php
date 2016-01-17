@@ -123,6 +123,18 @@ class Routes
 	
 	static public $request_method='';
 	
+	/**
+	* Caching routes, this boolean set if you cache the routes in external file with a hash.
+	*/
+	
+	static public $cache_routes=false;
+	
+	/**
+	* array where the cached routes are saved.
+	*/
+	
+	static public $cached_routes=[];
+	
 	public function __construct()
 	{
 	
@@ -263,7 +275,7 @@ class Routes
 		$arr_url[0]=trim($arr_url[0]);
 
         $loaded_url=0;
-            
+
         if(isset($arr_url[0]) && $arr_url[0]!='')
         {
         
