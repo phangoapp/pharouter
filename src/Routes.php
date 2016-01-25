@@ -150,6 +150,10 @@ class Routes
 	
 	}
 	
+	/**
+	* Simple method for load the configuration for this lib
+	*/
+	
 	public function load_config()
 	{
 	
