@@ -287,6 +287,8 @@ class Routes
             
             settype(Routes::$prefix_path[Routes::$app], 'string');
             
+            //Load cached urls
+            
             //Load url from this module
             
             Utils::load_config('urls', Routes::$root_path.Routes::$prefix_path[Routes::$app].Routes::$app);
@@ -315,6 +317,8 @@ class Routes
                     $method=$route[1];
                 
                     $loaded_url=1;
+                    
+                    //Add to cache
                     
                     break;
                 
