@@ -328,6 +328,19 @@ class Routes
             
         }
         
+        $pos_slash=strpos($controller, '/');
+                    
+        if($pos_slash)
+        {
+        
+            $prefix_folder=substr($controller, 0, $pos_slash);
+            
+            $this->folder_controllers=$this->folder_controllers.'/'.$prefix_folder;
+            
+            $controller=basename($controller);
+        
+        }
+        
         $path_controller=Routes::$root_path.Routes::$prefix_path[Routes::$app].Routes::$app.'/'.$this->folder_controllers.'/controller_'.$controller.'.php';
 		
 		//Search normal urls if $accept_easy_urls is true
