@@ -187,6 +187,8 @@ class Routes
 		
             $arr_app=explode('/', $app);
             
+            settype($arr_app[1], 'string');
+            
             Routes::$prefix_path[$arr_app[1]]='/'.$arr_app[0].'/';
             Routes::$apps[$key_app]=$arr_app[1];
 		
@@ -630,6 +632,15 @@ class Routes
         return Routes::add_get_parameters($url, $get);
 	
 	}
+    
+    /**
+    * Alias of make_simple_url. Probably this method deprecated make_simple_url
+    */
+    
+    static public function get_url($url_path, $values=array(), $get=array())
+	{
+        return Routes::make_simple_url($url_path, $values, $get);
+    }
 	
 	/**
 	* Function used for add get parameters to a well-formed url based on make_fancy_url, make_direct_url and others.
