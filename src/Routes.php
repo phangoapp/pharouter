@@ -520,8 +520,12 @@ class Routes
 			}
 		
 		}
+        
+        $content=ob_get_contents();
 		
-		ob_end_flush();
+		ob_end_clean();
+        
+        echo trim($content);
 	
 	}
 	
