@@ -182,6 +182,8 @@ class Routes
             
         Routes::$app=basename(Routes::$app);
 		
+        $apps=[];
+        
 		foreach(Routes::$apps as $key_app => $app)
 		{
 		
@@ -190,7 +192,7 @@ class Routes
             settype($arr_app[1], 'string');
             
             Routes::$prefix_path[$arr_app[1]]='/'.$arr_app[0].'/';
-            Routes::$apps[$key_app]=$arr_app[1];
+            $apps[$key_app]=$arr_app[1];
 		
 		}
 		
@@ -387,7 +389,7 @@ class Routes
             
         }
 
-		if(is_file($path_controller) && in_array(Routes::$app, Routes::$apps))
+		if(is_file($path_controller) && in_array(Routes::$app, $apps))
 		{
 			
 			//Pass this route to the controller.
