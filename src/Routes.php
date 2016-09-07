@@ -226,6 +226,8 @@ class Routes
 		//Load Get variables from url
 		
 		$arr_name_get=array();
+        
+        $get_filtered=[];
 		
 		if(isset($arr_extra_get[1]))
 		{
@@ -249,8 +251,7 @@ class Routes
 				{
 					
 					//Cut big variables...
-
-					$_GET[$arr_variables[$x]]=Utils::form_text(urldecode(substr($arr_variables[$x+1], 0, 255)));
+                    $get_filtered[$arr_variables[$x]]=Utils::form_text(urldecode(substr($arr_variables[$x+1], 0, 255)));
 					
 
 				}
@@ -258,6 +259,10 @@ class Routes
 			}
 		
 		}
+        
+        //Drop other get variables
+        
+        $_GET=array_diff_key($get_filtered, $_GET);
 		
 		//Delete get elements.
 		//Here can make a optimitation with the split used in obtain get...
