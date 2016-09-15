@@ -218,7 +218,18 @@ class Routes
 			$url=substr($url, 0, strlen($url)-1);
 			
 		}
-		
+	
+        //Filter original get elements
+        
+        foreach($_GET as $k => $v)
+        {
+            
+            //Cut big variables...
+            $_GET[$k]=Utils::form_text(urldecode(substr($v, 0, 255)));
+            
+
+        }
+    	
 		//Obtain get elements 
 		
 		$arr_extra_get=explode('/get/', $url);
@@ -262,7 +273,7 @@ class Routes
         
         //Drop other get variables
         
-        $_GET=array_diff_key($get_filtered, $_GET);
+        $_GET=array_merge($get_filtered, $_GET);
 		
 		//Delete get elements.
 		//Here can make a optimitation with the split used in obtain get...
