@@ -397,7 +397,7 @@ class Routes
                 if(isset($arr_url[$method_path_index]))
                 {
                 
-                    $method=Utils::slugify($arr_url[2], $respect_upper=1, $replace_space='-', $replace_dot=1, $replace_barr=1);;
+                    $method=Utils::slugify($arr_url[$method_path_index], $respect_upper=1, $replace_space='-', $replace_dot=1, $replace_barr=1);;
                     
                 }
                 
