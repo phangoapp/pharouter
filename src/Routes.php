@@ -134,6 +134,12 @@ class Routes
 	*/
 	
 	static public $cached_routes=[];
+    
+    /**
+    * Property that define the csrf checking
+    */
+    
+    static public $check_csrf=true;
 	
 	public function __construct()
 	{
@@ -195,6 +201,34 @@ class Routes
             $apps[$key_app]=$arr_app[1];
 		
 		}
+        
+        //Check csrf
+        
+        if(Routes::$request_method=='POST' && Routes::$check_csrf==true)
+        {
+            
+            settype($_SESSION['csrf_token'], 'string');
+            settype($_POST['csrf_token'], 'string');
+            
+            $_SESSION['csrf_token']=trim($_SESSION['csrf_token']);
+            
+            if($_POST['csrf_token']==$_SESSION['csrf_token'] && $_SESSION['csrf_token']!='')
+            {
+                
+                $_SESSION['csrf_token']='';
+                
+            }
+            else
+            {
+                
+                echo 'Error: csrf wrong';
+                
+                die;
+                
+            }
+            
+        }
+        
 		
 		//Clean the url
 		
