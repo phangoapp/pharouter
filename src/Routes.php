@@ -88,10 +88,17 @@ class Routes
 	public $default_404=array();
 
 	/**
+    * @warning This route type should be deprecated in next versions, when arr_routes_dynamic will be stable
 	* An array where the routes are saved
 	*/
 	
 	protected $arr_routes=array();
+
+	/**
+	* An array where dynamic routes are saved
+	*/
+	
+	protected $arr_routes_dynamic=array();
 	
 	/**
 	* Default controller, method and values when is not specified any url.
