@@ -143,6 +143,12 @@ class Routes
 	static public $cached_routes=[];
     
     /**
+    * array where is saved the folder path of module
+    */
+    
+    static public $folder_routes=[];
+    
+    /**
     * Property that define the csrf checking
     */
     
@@ -208,33 +214,6 @@ class Routes
             $apps[$key_app]=$arr_app[1];
 		
 		}
-        
-        //Check csrf
-        
-        if(Routes::$request_method=='POST' && Routes::$check_csrf==true)
-        {
-            
-            settype($_SESSION['csrf_token'], 'string');
-            settype($_POST['csrf_token'], 'string');
-            
-            $_SESSION['csrf_token']=trim($_SESSION['csrf_token']);
-            
-            if($_POST['csrf_token']==$_SESSION['csrf_token'] && $_SESSION['csrf_token']!='')
-            {
-                
-                $_SESSION['csrf_token']='';
-                
-            }
-            else
-            {
-                
-                echo 'Error: csrf wrong';
-                
-                die;
-                
-            }
-            
-        }
         
 		
 		//Clean the url
@@ -343,17 +322,28 @@ class Routes
 
         if(isset($arr_url[0]) && $arr_url[0]!='')
         {
-        
-            Routes::$app=Utils::slugify($arr_url[0], $respect_upper=1, $replace_space='-', $replace_dot=1, $replace_barr=1);
+
+            if(isset(Routes::$folder_routes[Routes::$prefix_path[Routes::$app].$arr_url[0]]))
+            {
+                
+                Routes::$app=Routes::$folder_routes[Routes::$prefix_path[Routes::$app].$arr_url[0]];
+                
+            }
+            else
+            {
+            
+                Routes::$app=Utils::slugify($arr_url[0], $respect_upper=1, $replace_space='-', $replace_dot=1, $replace_barr=1);
+                
+            }
             
             settype(Routes::$prefix_path[Routes::$app], 'string');
-            
+                        
             //Load cached urls
             
             //Load url from this module
             
             Utils::load_config('urls', Routes::$root_path.Routes::$prefix_path[Routes::$app].Routes::$app);
-
+            
             foreach(Routes::$urls as $url_def => $route)
             {
             
@@ -502,6 +492,35 @@ class Routes
 						//$x++;
 					
 					}
+                    
+                    //Check csrf
+        
+                    if(Routes::$request_method=='POST' && Routes::$check_csrf==true)
+                    {
+                        
+                        settype($_SESSION['csrf_token'], 'string');
+                        settype($_POST['csrf_token'], 'string');
+                        
+                        $_SESSION['csrf_token']=trim($_SESSION['csrf_token']);
+                        
+                        if($_POST['csrf_token']===$_SESSION['csrf_token'] && $_SESSION['csrf_token']!=='')
+                        {
+                            
+                            $_SESSION['csrf_token']='';
+                            
+                        }
+                        else
+                        {
+                            
+                            $_SESSION['csrf_token']='';
+                            
+                            echo 'Error: csrf wrong';
+                            
+                            die;
+                            
+                        }
+                        
+                    }
                 
                 
                     if(!call_user_func_array(array($controller_class, $method), $params)===false)
