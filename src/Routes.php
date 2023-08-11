@@ -318,6 +318,8 @@ class Routes
 		
 		$arr_url[0]=trim($arr_url[0]);
 
+        //Variable that define if route is getted from urls.php file used for define random urls and not typical codeigniter urls of phango. 
+
         $loaded_url=0;
 
         if(isset($arr_url[0]) && $arr_url[0]!='')
